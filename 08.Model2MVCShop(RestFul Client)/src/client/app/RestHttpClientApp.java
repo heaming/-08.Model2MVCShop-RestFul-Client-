@@ -3,6 +3,7 @@ package client.app;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.model2.mvc.common.Search;
 import com.model2.mvc.service.domain.Product;
 import com.model2.mvc.service.domain.User;
 
@@ -23,12 +25,7 @@ public class RestHttpClientApp {
 
 	// main Method
 	public static void main(String[] args) throws Exception{
-
-		////////////////////////////////////////////////////////////////////////////////////////////
-		// 주석을 하나씩 처리해가며 실습
-		////////////////////////////////////////////////////////////////////////////////////////////
-
-		// User		
+		/////////// User		
 		//		System.out.println("\n====================================\n");
 		//		// 1.1 Http Get 방식 Request : JsonSimple lib 사용
 		//		RestHttpClientApp.getUserTest_JsonSimple();
@@ -45,10 +42,7 @@ public class RestHttpClientApp {
 		//		// 2.2 Http Post 방식 Request : CodeHaus lib 사용
 		//		RestHttpClientApp.LoginTest_Codehaus();		
 
-
-
-		// Product
-
+		//////////// Product
 		//		System.out.println("\n=====Http Get 방식 Request : CodeHaus lib : getProductTest_Codehaus() =====\n");
 		//		RestHttpClientApp.getProductTest_Codehaus();
 
@@ -57,7 +51,7 @@ public class RestHttpClientApp {
 
 		// 		RestHttpClientApp.addProductTest_Codehaus();	
 		
-		RestHttpClientApp.listProductTest_Codehaus();
+		//		RestHttpClientApp.listProductTest_Codehaus();
 	}
 
 
@@ -417,18 +411,50 @@ public class RestHttpClientApp {
 
 	public static void listProductTest_Codehaus() throws Exception {
 
-		// HttpClient : Http Protocol 의 client 추상화 
 		HttpClient httpClient = new DefaultHttpClient();
 
-		String url= "http://127.0.0.1:8080/product/json/listProduct";
+		String url = "http://127.0.0.1:8080/product/json/listProduct";
 
-		// HttpGet : Http Protocol 의 GET 방식 Request
-		HttpGet httpGet = new HttpGet(url);
-		httpGet.setHeader("Accept", "application/json");
-		httpGet.setHeader("Content-Type", "application/json");
+		HttpPost httpPost = new HttpPost(url);
+		httpPost.setHeader("Accept", "application/json");
+		httpPost.setHeader("Content-Type", "application/json");
 
-		
+		Search search = new Search();
+		search.setCurrentPage(1);
+		search.setPageSize(3);
+		search.setSearchCondition("0");
+		search.setSearchKeyword("");
 
+		ObjectMapper objectMapper01 = new ObjectMapper();
+
+		String jsonValue = objectMapper01.writeValueAsString(search);
+
+		System.out.println(jsonValue);
+
+		HttpEntity httpEntity = new StringEntity(jsonValue,"utf-8");
+
+		httpPost.setEntity(httpEntity);
+		HttpResponse httpResponse = httpClient.execute(httpPost);		
+
+		//==> Response 확인
+		System.out.println(httpResponse);
+		System.out.println();
+
+		//==> Response 중 entity(DATA) 확인
+		httpEntity = httpResponse.getEntity();
+		System.out.println(httpEntity);
+
+		//==> InputStream 생성
+		InputStream is = httpEntity.getContent();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+
+		//==> API 확인 : Stream 객체를 직접 전달 
+		JSONObject jsonobj = (JSONObject)JSONValue.parse(br);
+		System.out.println(jsonobj);
+
+		Map map = objectMapper01.readValue(jsonobj.toString(), Map.class);
+
+		System.out.println(map);
 	}
 	
 	
