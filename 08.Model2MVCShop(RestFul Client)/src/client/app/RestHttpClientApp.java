@@ -18,6 +18,7 @@ import org.json.simple.JSONValue;
 
 import com.model2.mvc.common.Search;
 import com.model2.mvc.service.domain.Product;
+import com.model2.mvc.service.domain.Purchase;
 import com.model2.mvc.service.domain.User;
 
 
@@ -52,6 +53,14 @@ public class RestHttpClientApp {
 		// 		RestHttpClientApp.addProductTest_Codehaus();	
 		
 		//		RestHttpClientApp.listProductTest_Codehaus();
+		
+		//////////// Purchase
+		RestHttpClientApp.getPurchaseTest_Codehaus();
+//		RestHttpClientApp.getProductTest_Codehaus();
+//		RestHttpClientApp.getProductTest_Codehaus();
+//		RestHttpClientApp.getProductTest_Codehaus();
+//		RestHttpClientApp.getProductTest_Codehaus();
+		
 	}
 
 
@@ -458,6 +467,34 @@ public class RestHttpClientApp {
 	}
 	
 	
+	//////// Purchase ////////////
+	public static void getPurchaseTest_Codehaus() throws Exception {
+		
+		HttpClient httpClient = new DefaultHttpClient();
+		
+		String url = "http://127.0.0.1:8080/purchase/json/getPurchase/10002";
+		
+		HttpGet httpGet = new HttpGet(url);
+		httpGet.setHeader("Accept", "application/json");
+		httpGet.setHeader("Content-Type", "application/json");
+
+		HttpResponse httpResponse = httpClient.execute(httpGet);
+		System.out.println(httpResponse);
+		System.out.println();
+
+		HttpEntity httpEntity = httpResponse.getEntity();
+
+		InputStream is = httpEntity.getContent();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+
+		JSONObject jsonobj = (JSONObject)JSONValue.parse(br);
+		System.out.println(jsonobj);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		Purchase purchase = objectMapper.readValue(jsonobj.toString(), Purchase.class);
+		System.out.println(purchase);
+		
+	}
 	
 	
 
